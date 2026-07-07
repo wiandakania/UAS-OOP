@@ -202,7 +202,7 @@ public class Dashboard extends javax.swing.JFrame {
 
     private void jButtonKaryawanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonKaryawanActionPerformed
         // TODO add your handling code here:
-    EmployeeView employee = new EmployeeView();
+    EmployeView employee = new EmployeView();
     employee.setVisible(true);
     }//GEN-LAST:event_jButtonKaryawanActionPerformed
 
