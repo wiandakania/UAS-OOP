@@ -9,7 +9,6 @@ public class AuthController {
 
     private UserDAO userDAO = new UserDAO();
     private SessionManager session = SessionManager.getInstance();
-    private PasswordUtil passwordUtil = new PasswordUtil();
 
     public AuthController() {
     }
@@ -27,7 +26,7 @@ public class AuthController {
             return -1;
         }
 
-        if (passwordUtil.verify(password, user.getPassword())) {
+        if (PasswordUtil.verify(password, user.getPassword())) {
             session.login(user);
             return 1;
         }
@@ -55,11 +54,11 @@ public class AuthController {
             return -1;
         }
 
-        if (!passwordUtil.verify(oldPassword, current.getPassword())) {
+        if (!PasswordUtil.verify(oldPassword, current.getPassword())) {
             return 0;
         }
 
-        String newHashed = passwordUtil.hash(newPassword);
+        String newHashed = PasswordUtil.hash(newPassword);
         int result = userDAO.updatePassword(current.getId(), newHashed);
 
         if (result == 1) {

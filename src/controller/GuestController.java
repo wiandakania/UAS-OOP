@@ -59,4 +59,7 @@ public class GuestController {
 
         return guestDAO.getPage(limit, offset);
     }
+        public int count() {
+        return guestDAO.count();
+        }
 }

@@ -1,6 +1,9 @@
 package dao;
 
 import config.DBConnection;
+import interfaces.CrudRepository;
+import interfaces.Pageable;
+import interfaces.Searchable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,7 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.Guest;
 
-public class GuestDAO {
+public class GuestDAO implements CrudRepository<Guest, Integer>, Pageable<Guest>, Searchable<Guest> {
 
     private Connection connection;
 
@@ -23,6 +26,7 @@ public class GuestDAO {
         }
     }
 
+    @Override
     public int create(Guest g) {
         try {
             String sql = "INSERT INTO guests (name, email, phone, id_number, address) VALUES (?,?,?,?,?)";
@@ -42,6 +46,7 @@ public class GuestDAO {
         }
     }
 
+    @Override
     public int update(Guest g) {
         try {
             String sql = "UPDATE guests SET name=?, email=?, phone=?, id_number=?, address=? WHERE id=?";
@@ -62,7 +67,8 @@ public class GuestDAO {
         }
     }
 
-    public int delete(int id) {
+    @Override
+    public int delete(Integer id) {
         try {
             String sql = "DELETE FROM guests WHERE id=?";
             PreparedStatement stmt = this.connection.prepareStatement(sql);
@@ -77,7 +83,7 @@ public class GuestDAO {
         }
     }
 
-    public Guest search(int id) {
+    public Guest search(Integer id) {
         Guest g = null;
 
         try {
@@ -132,6 +138,27 @@ public class GuestDAO {
         return list;
     }
 
+    public int count() {
+        int total = 0;
+
+        try {
+            String sql = "SELECT COUNT(*) FROM guests";
+            PreparedStatement stmt = connection.prepareStatement(sql);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                total = rs.getInt(1);
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return total;
+    }
+
+    @Override
     public List<Guest> getPage(int limit, int offset) {
         List<Guest> list = new ArrayList<>();
 
@@ -141,6 +168,40 @@ public class GuestDAO {
 
             stmt.setInt(1, limit);
             stmt.setInt(2, offset);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                list.add(new Guest(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getString("phone"),
+                        rs.getString("id_number"),
+                        rs.getString("address")
+                ));
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return list;
+    }
+
+    @Override
+    public List<Guest> search(String keyword) {
+        List<Guest> list = new ArrayList<>();
+
+        try {
+            String sql = "SELECT * FROM guests WHERE name LIKE ? OR email LIKE ? OR phone LIKE ? OR id_number LIKE ? ORDER BY name";
+            PreparedStatement stmt = connection.prepareStatement(sql);
+
+            String pattern = "%" + keyword + "%";
+            stmt.setString(1, pattern);
+            stmt.setString(2, pattern);
+            stmt.setString(3, pattern);
+            stmt.setString(4, pattern);
 
             ResultSet rs = stmt.executeQuery();
 

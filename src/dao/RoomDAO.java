@@ -1,14 +1,18 @@
 package dao;
 
 import config.DBConnection;
+import interfaces.CrudRepository;
+import interfaces.Pageable;
+import interfaces.Searchable;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import model.Employee;
 import model.Room;
 
-public class RoomDAO {
+public class RoomDAO implements CrudRepository<Room, Integer>, Pageable<Room>, Searchable<Room> {
 
     private Connection connection;
 
@@ -210,5 +214,15 @@ public class RoomDAO {
         }
 
         return total;
+    }
+
+    @Override
+    public int delete(Integer id) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public List<Room> search(String keyword) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

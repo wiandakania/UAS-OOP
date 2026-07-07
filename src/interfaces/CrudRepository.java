@@ -1,7 +1,5 @@
 package interfaces;
 
-import java.util.List;
-
 public interface CrudRepository<T, ID> {
 
     int create(T entity);
@@ -9,10 +7,4 @@ public interface CrudRepository<T, ID> {
     int update(T entity);
 
     int delete(ID id);
-
-    T search(ID id);
-
-    List<T> getAll();
-
-    int count();
 }

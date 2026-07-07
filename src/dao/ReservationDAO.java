@@ -1,6 +1,9 @@
 package dao;
 
 import config.DBConnection;
+import interfaces.CrudRepository;
+import interfaces.Pageable;
+import interfaces.Searchable;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +11,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.Reservation;
 
-public class ReservationDAO {
+public class ReservationDAO implements CrudRepository<Reservation, Integer>,
+                                      Pageable<Reservation>,
+                                      Searchable<Reservation> {
 
     private Connection connection;
 
@@ -33,42 +38,6 @@ public class ReservationDAO {
             stmt.setString(6, r.getStatus());
 
             stmt.executeUpdate();
-            return 1;
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            return 0;
-        }
-    }
-
-    public int update(Reservation r) {
-        try {
-            String sql = "UPDATE reservations SET guest_id=?, room_id=?, check_in=?, check_out=?, total_price=?, status=? WHERE id=?";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-
-            stmt.setInt(1, r.getGuestId());
-            stmt.setInt(2, r.getRoomId());
-            stmt.setDate(3, java.sql.Date.valueOf(r.getCheckIn()));
-            stmt.setDate(4, java.sql.Date.valueOf(r.getCheckOut()));
-            stmt.setDouble(5, r.getTotalPrice());
-            stmt.setString(6, r.getStatus());
-            stmt.setInt(7, r.getId());
-
-            stmt.executeUpdate();
-            return 1;
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            return 0;
-        }
-    }
-
-    public int delete(int id) {
-        try {
-            String sql = "DELETE FROM reservations WHERE id=?";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-
             return 1;
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -215,5 +184,34 @@ public class ReservationDAO {
         }
 
         return total;
+    }
+    
+    public int update(Reservation r) {
+    String sql = "UPDATE reservations SET guest_id=?, room_id=?, check_in=?, check_out=?, status=? WHERE id=?";
+
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setInt(1, r.getGuestId());
+        ps.setInt(2, r.getRoomId());
+        ps.setDate(3, java.sql.Date.valueOf(r.getCheckIn()));
+        ps.setDate(4, java.sql.Date.valueOf(r.getCheckOut()));
+        ps.setString(5, r.getStatus());
+        ps.setInt(6, r.getId());
+
+        return ps.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
+
+    @Override
+    public int delete(Integer id) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public List<Reservation> search(String keyword) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

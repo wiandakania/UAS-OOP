@@ -5,7 +5,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class PasswordUtil {
 
-    public String hash(String password) {
+    public static String hash(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] bytes = md.digest(password.getBytes());
@@ -22,7 +22,7 @@ public class PasswordUtil {
         }
     }
 
-    public boolean verify(String rawPassword, String hashedPassword) {
+    public static boolean verify(String rawPassword, String hashedPassword) {
         return hash(rawPassword).equals(hashedPassword);
     }
 }

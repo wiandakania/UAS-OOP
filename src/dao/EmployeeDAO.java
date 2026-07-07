@@ -1,6 +1,9 @@
 package dao;
 
 import config.DBConnection;
+import interfaces.CrudRepository;
+import interfaces.Pageable;
+import interfaces.Searchable;
 import model.Employee;
 
 import java.sql.Connection;
@@ -12,7 +15,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class EmployeeDAO {
+public class EmployeeDAO implements CrudRepository<Employee, Integer>, Pageable<Employee>, Searchable<Employee> {
 
     private Connection connection;
 
@@ -24,6 +27,7 @@ public class EmployeeDAO {
         }
     }
 
+    @Override
     public int create(Employee e) {
         try {
             String sql = "INSERT INTO employees (name, email, phone, position, salary, hire_date, status) VALUES (?,?,?,?,?,?,?)";
@@ -46,6 +50,7 @@ public class EmployeeDAO {
         }
     }
 
+    @Override
     public int update(Employee e) {
         try {
             String sql = "UPDATE employees SET name=?, email=?, phone=?, position=?, salary=?, hire_date=?, status=? WHERE id=?";
@@ -69,7 +74,8 @@ public class EmployeeDAO {
         }
     }
 
-    public int delete(int id) {
+    @Override
+    public int delete(Integer id) {
         try {
             String sql = "DELETE FROM employees WHERE id=?";
             PreparedStatement stmt = connection.prepareStatement(sql);
@@ -85,7 +91,7 @@ public class EmployeeDAO {
         }
     }
 
-    public Employee search(int id) {
+    public Employee search(Integer id) {
         Employee employee = null;
 
         try {
@@ -147,6 +153,27 @@ public class EmployeeDAO {
         return list;
     }
 
+    public int count() {
+        int total = 0;
+
+        try {
+            String sql = "SELECT COUNT(*) FROM employees";
+            PreparedStatement stmt = connection.prepareStatement(sql);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                total = rs.getInt(1);
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return total;
+    }
+
+    @Override
     public List<Employee> getPage(int limit, int offset) {
         List<Employee> list = new ArrayList<>();
 
@@ -181,23 +208,38 @@ public class EmployeeDAO {
         return list;
     }
 
-    public int count() {
-        int total = 0;
+    @Override
+    public List<Employee> search(String keyword) {
+        List<Employee> list = new ArrayList<>();
 
         try {
-            String sql = "SELECT COUNT(*) FROM employees";
+            String sql = "SELECT * FROM employees WHERE name LIKE ? OR email LIKE ? OR position LIKE ? ORDER BY name";
             PreparedStatement stmt = connection.prepareStatement(sql);
+
+            String pattern = "%" + keyword + "%";
+            stmt.setString(1, pattern);
+            stmt.setString(2, pattern);
+            stmt.setString(3, pattern);
 
             ResultSet rs = stmt.executeQuery();
 
-            if (rs.next()) {
-                total = rs.getInt(1);
+            while (rs.next()) {
+                list.add(new Employee(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getString("phone"),
+                        rs.getString("position"),
+                        rs.getDouble("salary"),
+                        rs.getDate("hire_date").toLocalDate(),
+                        rs.getString("status")
+                ));
             }
 
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
 
-        return total;
+        return list;
     }
 }

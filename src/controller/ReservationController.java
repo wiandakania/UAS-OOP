@@ -125,4 +125,7 @@ public class ReservationController {
     public int count() {
         return reservationDAO.count();
     }
+   public int update(Reservation r) {
+    return reservationDAO.update(r);
+    }
 }

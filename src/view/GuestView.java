@@ -79,9 +79,9 @@ public class GuestView extends javax.swing.JFrame {
 }
     private void nextPage() {
 
-    List<Guest> list = guestController.getPage(currentPage + 1);
+    int totalPage = (int) Math.ceil((double) guestController.count() / limit);
 
-    if (list.isEmpty()) {
+    if (currentPage >= totalPage) {
         JOptionPane.showMessageDialog(this, "Ini halaman terakhir");
         return;
     }
@@ -91,7 +91,8 @@ public class GuestView extends javax.swing.JFrame {
 }
     private void prevPage() {
 
-    if (currentPage == 1) {
+    if (currentPage <= 1) {
+        JOptionPane.showMessageDialog(this, "Ini halaman pertama");
         return;
     }
 

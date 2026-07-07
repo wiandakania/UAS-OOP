@@ -147,7 +147,7 @@ public class ReservationView extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jButtonComplete = new javax.swing.JButton();
-        jButtonRefresh = new javax.swing.JButton();
+        jButtonUpdate = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTableReservation = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
@@ -232,8 +232,8 @@ public class ReservationView extends javax.swing.JFrame {
         jButtonComplete.setText("Complete");
         jButtonComplete.addActionListener(this::jButtonCompleteActionPerformed);
 
-        jButtonRefresh.setText("Rerfresh");
-        jButtonRefresh.addActionListener(this::jButtonRefreshActionPerformed);
+        jButtonUpdate.setText("Update");
+        jButtonUpdate.addActionListener(this::jButtonUpdateActionPerformed);
 
         jTableReservation.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -252,6 +252,11 @@ public class ReservationView extends javax.swing.JFrame {
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+        });
+        jTableReservation.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTableReservationMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(jTableReservation);
@@ -293,7 +298,7 @@ public class ReservationView extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jButtonComplete)
                                 .addGap(18, 18, 18)
-                                .addComponent(jButtonRefresh))
+                                .addComponent(jButtonUpdate))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(77, 77, 77)
                                 .addComponent(jTextFieldPencarian, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -304,7 +309,7 @@ public class ReservationView extends javax.swing.JFrame {
                         .addComponent(jButtonPreview)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonNext)))
-                .addContainerGap(41, Short.MAX_VALUE))
+                .addContainerGap(42, Short.MAX_VALUE))
             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
@@ -318,7 +323,7 @@ public class ReservationView extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonCancel)
                     .addComponent(jButtonComplete)
-                    .addComponent(jButtonRefresh)
+                    .addComponent(jButtonUpdate)
                     .addComponent(jButtonCreate))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -410,11 +415,35 @@ public class ReservationView extends javax.swing.JFrame {
     }
     }//GEN-LAST:event_jButtonCompleteActionPerformed
 
-    private void jButtonRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRefreshActionPerformed
+    private void jButtonUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUpdateActionPerformed
         // TODO add your handling code here:
-         currentPage = 1;
+         try {
+        int row = jTableReservation.getSelectedRow();
+
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Pilih data yang ingin diupdate!");
+            return;
+        }
+
+        int id = (int) jTableReservation.getValueAt(row, 0);
+
+        Reservation r = new Reservation();
+        r.setId(id);
+        r.setGuestId(getSelectedGuestId());
+        r.setRoomId(getSelectedRoomId());
+        r.setCheckIn(parseDate(jTextFieldCheckIn.getText()));
+        r.setCheckOut(parseDate(jTextFieldCheckOut.getText()));
+        r.setStatus("BOOKED");
+
+        reservationController.update(r);
+
+        JOptionPane.showMessageDialog(this, "Reservation berhasil diupdate!");
         refreshAll();
-    }//GEN-LAST:event_jButtonRefreshActionPerformed
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+    }
+    }//GEN-LAST:event_jButtonUpdateActionPerformed
 
     private void jButtonCariActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCariActionPerformed
         // TODO add your handling code here:
@@ -471,6 +500,36 @@ jTableReservation.setModel(model);
     loadTable();
     }//GEN-LAST:event_jButtonNextActionPerformed
 
+    private void jTableReservationMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableReservationMouseClicked
+        // TODO add your handling code here:
+       int row = jTableReservation.getSelectedRow();
+
+    if (row != -1) {
+        int id = (int) jTableReservation.getValueAt(row, 0);
+
+        Reservation r = reservationController.search(id);
+
+        if (r != null) {
+            jTextFieldCheckIn.setText(r.getCheckIn().toString());
+            jTextFieldCheckOut.setText(r.getCheckOut().toString());
+
+            for (int i = 0; i < jComboBoxGuest.getItemCount(); i++) {
+                if (jComboBoxGuest.getItemAt(i).startsWith(r.getGuestId() + " -")) {
+                    jComboBoxGuest.setSelectedIndex(i);
+                    break;
+                }
+            }
+
+            for (int i = 0; i < jComboBoxRoom.getItemCount(); i++) {
+                if (jComboBoxRoom.getItemAt(i).startsWith(r.getRoomId() + " -")) {
+                    jComboBoxRoom.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+    }
+    }//GEN-LAST:event_jTableReservationMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -488,7 +547,7 @@ jTableReservation.setModel(model);
                 }
             }
         } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
+                 java.util.logging.Logger.getLogger(ReservationView.class.
         }
         //</editor-fold>
 
@@ -503,7 +562,7 @@ jTableReservation.setModel(model);
     private javax.swing.JButton jButtonCreate;
     private javax.swing.JButton jButtonNext;
     private javax.swing.JButton jButtonPreview;
-    private javax.swing.JButton jButtonRefresh;
+    private javax.swing.JButton jButtonUpdate;
     private javax.swing.JComboBox<String> jComboBoxGuest;
     private javax.swing.JComboBox<String> jComboBoxRoom;
     private javax.swing.JLabel jLabel1;
