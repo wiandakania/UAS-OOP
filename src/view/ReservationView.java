@@ -18,6 +18,8 @@ import javax.swing.table.DefaultTableModel;
 import model.Guest;
 import model.Reservation;
 import model.Room;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ReservationView extends javax.swing.JFrame {
 
@@ -547,7 +549,7 @@ jTableReservation.setModel(model);
                 }
             }
         } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-                 java.util.logging.Logger.getLogger(ReservationView.class.
+            Logger.getLogger(ReservationView.class.getName()).log(Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
